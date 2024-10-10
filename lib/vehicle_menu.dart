@@ -1,7 +1,5 @@
-import "dart:convert";
 import "dart:io";
 import "package:cli/main_menu.dart" as main_menu;
-import "package:cli/models/person.dart";
 import "package:cli/models/vehicle.dart";
 import "package:cli/repositories/person_repsoitory.dart";
 import "package:cli/repositories/vehicle_repository.dart";
@@ -29,32 +27,39 @@ void readMenuSelection() {
   String optionSelected = stdin.readLineSync()!;
 
   //select action based on the selected option
-  if(optionSelected == "1") { //add person
-
+  if(optionSelected == "1") { 
+    
+    //add vehicle
     addVehicle();
   
-  } else if(optionSelected == "2") { //list all persons
-  
+  } else if(optionSelected == "2") { 
+    
+    //list vehicle
     getVehicle();
   
-  } else if(optionSelected == "3") { //list all persons
-  
+  } else if(optionSelected == "3") { 
+    
+    //list all vehicles
     getAllVehicles();
   
-  } else if(optionSelected == "4") { //update person
-  
+  } else if(optionSelected == "4") { 
+    
+    //update vehicle
     updateVehicle();
   
-  } else if(optionSelected == "5") { //delete person
-  
+  } else if(optionSelected == "5") { 
+    
+    //delete vehicle
     deleteVehicle();
   
-  } else if(optionSelected == "6") { //go back to main menu
-  
+  } else if(optionSelected == "6") { 
+    
+    //go back to main menu
     main_menu.showMenu();
   
-  } else { //unsupported selection
-  
+  } else { 
+    
+    //unsupported selection
     stdout.write("\nOgiligt val! Välj ett alternativ (1-5): ");
 
     readMenuSelection();

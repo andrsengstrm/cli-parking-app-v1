@@ -1,6 +1,8 @@
 import "dart:io";
 import "package:cli/person_menu.dart" as personer_menu;
 import "package:cli/vehicle_menu.dart" as vehicle_menu;
+import 'package:cli/parking_space_menu.dart' as parking_space_menu;
+import 'package:cli/parking_menu.dart' as parking_menu;
 
 void showMenu() {
 
@@ -29,15 +31,37 @@ void readMenuSelection() {
   String optionSelected = stdin.readLineSync()!;
 
   //select action based on the selected option
-  if(optionSelected.startsWith("1")) { //show menu for 'Personer'
+  if(optionSelected == "1") { 
+    
+    //show menu for personer
     personer_menu.showMenu();
-  } else if(optionSelected.startsWith("2")) { //show menu for 'Personer'
+  
+  } else if(optionSelected == "2") { 
+    
+    //show menu for vehicles
     vehicle_menu.showMenu();
-  } else if(optionSelected.startsWith("5")) { //exit the program
+  
+  } else if(optionSelected == "3") { 
+    
+    //show menu for parkingspaces
+    parking_space_menu.showMenu();
+  
+  } else if(optionSelected == "4") { 
+    
+    //show menu for parkings
+    parking_menu.showMenu();
+  
+  } else if(optionSelected == "5") { 
+    
+    //exit the program
     exitProgram();
-  } else { //unsupported selection
+  
+  } else { 
+    
+    //unsupported selection
     stdout.write("\nOgiligt val! Välj ett alternativ (1-5): ");
     readMenuSelection();
+  
   }
 
 }
