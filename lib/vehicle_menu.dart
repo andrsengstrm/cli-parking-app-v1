@@ -74,7 +74,7 @@ void addVehicle() {
   }
 
   //ask for vehicletype
-  print("Vilken typ av fordon är det?");
+  print("\nVilken typ av fordon är det?");
   var vehicleTypes = VehicleType.values;
   String typeSelection = "";
   for(var type in vehicleTypes) {
@@ -90,7 +90,7 @@ void addVehicle() {
   var vehicleType = VehicleType.values[typeIndex];
 
   //print all persons so the user can select the owner the person-index
-  print("Vem är ägaren av fordonet?");
+  print("\nVem är ägaren av fordonet?");
   PersonRepository().printAllPersons();
   stdout.write("\nVälj personens index: ");
   String ownerIndex = stdin.readLineSync()!;
@@ -128,10 +128,10 @@ void getVehicle() {
   try {
     //get the vehicle by its id
     var vehicle = VehicleRepository().getById(int.parse(index))!;
-    print("\n [Index] Id Regnr Fordonstyp Ägare");
-    print(" -------------------------------");
-    print(" [$index] ${vehicle.printDetails}");
-    print(" -------------------------------");
+    print("\nIndex Id Regnr Fordonstyp Ägare");
+    print("-------------------------------");
+    print("$index ${vehicle.printDetails}");
+    print("-------------------------------");
 
 
     showMenu();
@@ -190,11 +190,11 @@ void updateVehicle() {
     var vehicle = VehicleRepository().getById(int.parse(index))!;
 
     //ask to update the name
-    stdout.write("Uppdatera registreringsnummer (${vehicle.regId}): ");
+    stdout.write("\nUppdatera registreringsnummer (${vehicle.regId}): ");
     String regId = stdin.readLineSync()!;
     regId = regId.isNotEmpty ? regId : vehicle.regId;
 
-    print("Uppdatera fordonstyp");
+    print("\nUppdatera fordonstyp");
     var vehicleTypes = VehicleType.values;
     String typeSelection = "";
     for(var type in vehicleTypes) {
@@ -210,9 +210,9 @@ void updateVehicle() {
     var vehicleType = VehicleType.values[typeIndex];
 
       //print all persons so the user can select the owner the person-index
-    print("Uppdatera ägaren av fordonet");
+    print("\nUppdatera ägaren av fordonet");
     PersonRepository().printAllPersons();
-    stdout.write("\nVälj personens index: ");
+    stdout.write("Välj personens index: ");
     String ownerIndex = stdin.readLineSync()!;
     var ownerPerson = PersonRepository().getById(int.tryParse(ownerIndex)!)!;
 

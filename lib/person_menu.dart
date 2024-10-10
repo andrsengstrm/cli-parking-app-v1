@@ -111,10 +111,10 @@ void getPerson() {
   try {
     //get the person by its id
     var person = PersonRepository().getById(int.parse(index))!;
-    print("\n [Index] Id Namn Personnummer");
-    print(" -------------------------------");
-    print(" [$index] ${person.printDetails}");
-    print(" -------------------------------");
+    print("\nIndex Id Namn Personnummer");
+    print("-------------------------------");
+    print("$index ${person.printDetails}");
+    print("-------------------------------");
 
     //print(" [${person.personId}] ${person.name}");
 
@@ -176,7 +176,7 @@ void updatePerson() {
     var person = PersonRepository().getById(int.parse(index))!;
 
     //ask to update the name
-    stdout.write("Uppdatera namn (${person.name}): ");
+    stdout.write("\nUppdatera namn (${person.name}): ");
     String name = stdin.readLineSync()!;
     name = name.isNotEmpty ? utf8.decode(name.codeUnits) : person.name;
 
@@ -189,7 +189,7 @@ void updatePerson() {
 
     //update the person
     person = PersonRepository().update(person, updatedPerson)!;
-    print("Personen har uppdaterats");
+    print("\nPersonen har uppdaterats");
 
   } on StateError { //no one was found, lets try again
 

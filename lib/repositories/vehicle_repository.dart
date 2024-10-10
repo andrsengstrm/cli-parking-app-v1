@@ -10,13 +10,13 @@ class VehicleRepository extends Repository<Vehicle> {
   factory VehicleRepository() => _instance;
 
   void printAllVehicles() {
-    print("\n [Index] Id Regnr Fordonstyp Ägare");
-    print(" -------------------------------");
+    print("\nIndex Id Regnr Fordonstyp Ägare");
+    print("-------------------------------");
     var vehicleList = VehicleRepository().getAll();
     for(var vehicle in vehicleList) {
-      print(" [${vehicleList.indexOf(vehicle)}] ${vehicle.printDetails}");
+      print("${vehicleList.indexOf(vehicle)} ${vehicle.printDetails}");
     }
-    print(" -------------------------------");
+    print("-------------------------------");
   }
 
 }
