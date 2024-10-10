@@ -43,11 +43,11 @@ void readMenuSelection() {
   
   } else if(optionSelected == "4") { //update person
   
-    //updatePerson();
+    updateVehicle();
   
   } else if(optionSelected == "5") { //delete person
   
-    //deletePerson();
+    deleteVehicle();
   
   } else if(optionSelected == "6") { //go back to main menu
   
@@ -73,7 +73,7 @@ void addVehicle() {
     regId = stdin.readLineSync()!;
   }
 
-  //ask for vehicletype, we default to 'bil'
+  //ask for vehicletype
   print("Vilken typ av fordon är det?");
   var vehicleTypes = VehicleType.values;
   String typeSelection = "";
@@ -174,9 +174,9 @@ void getAllVehicles() {
 
 }
 
-void updatePerson() {
+void updateVehicle() {
 
-  stdout.write("\nAnge index på den person du vill uppdatera (tryck enter för att avbryta): ");
+  stdout.write("\nAnge index på det fordon du vill uppdatera (tryck enter för att avbryta): ");
   String index = stdin.readLineSync()!;
 
   if(index == "") {
@@ -184,37 +184,53 @@ void updatePerson() {
     return;
   }
 
-
   try {
 
-    //try to get the person from the personrepository
-    var person = PersonRepository().getById(int.parse(index))!;
+    //try to get the vehicle from the personrepository
+    var vehicle = VehicleRepository().getById(int.parse(index))!;
 
     //ask to update the name
-    stdout.write("Uppdatera namn (${person.name}): ");
-    String name = stdin.readLineSync()!;
-    name = name.isNotEmpty ? utf8.decode(name.codeUnits) : person.name;
+    stdout.write("Uppdatera registreringsnummer (${vehicle.regId}): ");
+    String regId = stdin.readLineSync()!;
+    regId = regId.isNotEmpty ? regId : vehicle.regId;
 
-    //ask to update the personId
-    stdout.write("Uppdatera personnummer (${person.personId}): ");
-    String personId = stdin.readLineSync()!;
-    personId = personId.isNotEmpty ? personId : person.personId;
+    print("Uppdatera fordonstyp");
+    var vehicleTypes = VehicleType.values;
+    String typeSelection = "";
+    for(var type in vehicleTypes) {
+      typeSelection += "${vehicleTypes.indexOf(type)} - ${type.name.toUpperCase()}, ";
+    }
+    print(typeSelection);
+    stdout.write("Välj fordonstyp: ");
+    int typeIndex = int.tryParse(stdin.readLineSync()!)!;
+    while(typeIndex >= vehicleTypes.length) {
+      stdout.write("Välj fordonstyp: ");
+      typeIndex = int.tryParse(stdin.readLineSync()!)!;
+    }
+    var vehicleType = VehicleType.values[typeIndex];
 
-    var updatedPerson = Person(personId: personId, name: name);
+      //print all persons so the user can select the owner the person-index
+    print("Uppdatera ägaren av fordonet");
+    PersonRepository().printAllPersons();
+    stdout.write("\nVälj personens index: ");
+    String ownerIndex = stdin.readLineSync()!;
+    var ownerPerson = PersonRepository().getById(int.tryParse(ownerIndex)!)!;
+
+    var updatedVehicle = Vehicle(regId: regId, vehicleType: vehicleType, owner: ownerPerson );
 
     //update the person
-    person = PersonRepository().update(person, updatedPerson)!;
-    print("Personen har uppdaterats");
+    vehicle = VehicleRepository().update(vehicle, updatedVehicle)!;
+    print("Fordonet har uppdaterats");
 
   } on StateError { //no one was found, lets try again
 
-    print("Det finns ingen person med index $index");
-    updatePerson();
+    print("Det finns inget fordon med index $index");
+    updateVehicle();
 
   } on RangeError { //outside the index, lets try again
 
-    print("Det finns ingen person med index $index");
-    updatePerson();
+    print("Det finns inget fordon med index $index");
+    updateVehicle();
 
   } catch(err) { //some other error
 
@@ -226,16 +242,17 @@ void updatePerson() {
 
 }
 
-void deletePerson() {
+void deleteVehicle() {
 
   //get all persons, if empty we return to the menu
-  var personList = PersonRepository().getAll();
-  if(personList.isEmpty) {
+  var vehicleList = VehicleRepository();
+
+  if(vehicleList.getAll().isEmpty) {
     showMenu();
     return;
   }
 
-  stdout.write("\nAnge index på den person du vill ta bort (tryck enter för att avbryta): ");
+  stdout.write("\nAnge index på det fordon som du vill ta bort (tryck enter för att avbryta): ");
   String index = stdin.readLineSync()!;
 
   if(index == "") { //no value provided
@@ -245,21 +262,21 @@ void deletePerson() {
 
   try {
     //try to get the person from the personrepository
-    Person person = PersonRepository().getById(int.parse(index))!;
+    Vehicle vehicle = vehicleList.getById(int.parse(index))!;
 
     //delete the person
-    PersonRepository().delete(person);
-    print("Personen ${person.name} har tagits bort");
+    vehicleList.delete(vehicle);
+    print("Fordonet med registreringsnummer ${vehicle.regId} har tagits bort");
 
   } on StateError { //no one was found, lets try again
 
-    print("Det finns ingen person med index $index");
-    deletePerson();
+    print("Det finns inget fordon med index $index");
+    deleteVehicle();
 
   } on RangeError { //outside the index, lets try again
 
-    print("Det finns ingen person med index $index");
-    deletePerson();
+    print("Det finns inget forodn med index $index");
+    deleteVehicle();
 
   } catch(err) { //some other error
 
