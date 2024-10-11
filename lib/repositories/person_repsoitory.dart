@@ -9,14 +9,4 @@ class PersonRepository extends Repository<Person> {
 
   factory PersonRepository() => _instance;
 
-  void printAllPersons() {
-    print("\nIndex Id Namn Personnummer");
-    print("-------------------------------");
-    var personList = PersonRepository().getAll();
-    for(var person in personList) {
-      print("${personList.indexOf(person)} ${person.printDetails}");
-    }
-    print("-------------------------------");
-  }
-
 }

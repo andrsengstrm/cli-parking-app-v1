@@ -9,15 +9,5 @@ class ParkingSpaceRepository extends Repository<ParkingSpace> {
 
   factory ParkingSpaceRepository() => _instance;
 
-  void printAllParkingSpaces() {
-    print("\nIndex Id Adress Pris/timme");
-    print("-------------------------------");
-    var parkingSpaceList = ParkingSpaceRepository().getAll();
-    for(var parkingSpace in parkingSpaceList) {
-      print("${parkingSpaceList.indexOf(parkingSpace)} ${parkingSpace.printDetails}");
-    }
-    print("-------------------------------");
-  }
-
 
 }

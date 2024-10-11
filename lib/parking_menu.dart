@@ -1,5 +1,13 @@
-import 'dart:io';
-import 'package:cli/main_menu.dart' as main_menu;
+import "dart:io";
+import "package:cli/main_menu.dart" as main_menu;
+import "package:cli/models/parking.dart";
+import "package:cli/repositories/parking_repository.dart";
+import "package:cli/models/vehicle.dart";
+import "package:cli/vehicle_menu.dart" as vehicle_menu;
+import "package:cli/repositories/vehicle_repository.dart";
+import "package:cli/parking_space_menu.dart" as parking_space_menu;
+import "package:cli/models/parking_space.dart";
+import "package:cli/repositories/parking_space_repository.dart";
 
 void showMenu() {
   
@@ -65,17 +73,117 @@ void readMenuSelection() {
   
 }
 
-void deleteParking() {
-}
+void addParking() {
 
-void updateParking() {
-}
+  //set the vehicle
+  Vehicle vehicle = setVehicle();
 
-void getAllParkings() {
+  //set the parkingspace
+  ParkingSpace parkingSpace = setParkingSpace();
+
+  //set the starttime
+  double startTime = setTime(message: "\nVilken tid ska parkeringen börja?");
+
+  //set the endtime
+  double endTime = setTime(message: "\nVilken tid ska parkeringen sluta?");
+
+  try {
+
+    //set the parking-object
+    Parking newParking = Parking(vehicle: vehicle, parkingSpace: parkingSpace, startTime: startTime, endTime: endTime);
+    ParkingRepository().add(newParking);
+
+    print("\nParkeringen har startats.");
+
+  } catch(err) {
+
+    print("\nEtt fel har uppstått: $err");
+
+  }
+
+  showMenu();
+
+
 }
 
 void getParking() {
 }
 
-void addParking() {
+void getAllParkings() {
 }
+
+void updateParking() {
+}
+
+void deleteParking() {
+}
+
+
+/*---------------- subfunctions ----------------*/
+
+//set the vehicle
+Vehicle setVehicle([String message = "\nVilket fordon vill du parkera?"]) {
+
+  print(message);
+
+  //list all vehicles
+  var vehicleList = VehicleRepository().getAll();
+  vehicle_menu.printVehicleList(vehicleList);
+
+  //ask for index
+  String inputVehicleIndex;
+  do {
+    stdout.write("Välj fordonets index: ");
+    inputVehicleIndex = stdin.readLineSync()!;
+  } while(inputVehicleIndex.isEmpty || int.tryParse(inputVehicleIndex) == null || int.tryParse(inputVehicleIndex)! >= vehicleList.length);
+
+  //select the item by index and return it
+  return VehicleRepository().getById(int.parse(inputVehicleIndex))!;
+
+}
+
+//set the parkingspace
+ParkingSpace setParkingSpace([String message = "\nVilken perkeringsplats vill du använda?"]) {
+
+  print(message);
+
+  //list all parkingspaces
+  var parkingSpaceList = ParkingSpaceRepository().getAll();
+  parking_space_menu.printParkingSpaceList(parkingSpaceList);
+
+  //ask for index
+  String inputParkingSpaceIndex;
+  do {
+    stdout.write("Välj parkeringsplatsens index: ");
+    inputParkingSpaceIndex = stdin.readLineSync()!;
+  } while(inputParkingSpaceIndex.isEmpty || int.tryParse(inputParkingSpaceIndex) == null || int.tryParse(inputParkingSpaceIndex)! >= parkingSpaceList.length);
+
+  //select the item by index and return it
+  return ParkingSpaceRepository().getById(int.parse(inputParkingSpaceIndex))!;
+
+}
+
+double setTime({required String message}) {
+
+  print(message);
+
+  //set the time
+  String inputTime;
+  do {
+    stdout.write("Fyll i klockslag (HH.MM): ");
+    inputTime = stdin.readLineSync()!;
+
+  } while(double.tryParse(inputTime) == null);
+
+  return double.parse(inputTime);
+
+}
+
+
+
+
+
+
+
+
+

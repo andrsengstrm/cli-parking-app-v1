@@ -1,5 +1,6 @@
 import "dart:io";
 import "package:cli/main_menu.dart" as main_menu;
+import "package:cli/person_menu.dart" as person_menu;
 import "package:cli/models/vehicle.dart";
 import "package:cli/repositories/person_repsoitory.dart";
 import "package:cli/repositories/vehicle_repository.dart";
@@ -95,7 +96,6 @@ void addVehicle() {
 
   }
   
-  
   showMenu();
 
 }
@@ -151,7 +151,7 @@ void getAllVehicles() {
   
   } else {
     
-    VehicleRepository().printAllVehicles();
+    printVehicleList(vehicleList);
 
   }
 
@@ -255,6 +255,9 @@ void deleteVehicle() {
 
 }
 
+
+/*------------ subfunctions ------------------*/
+
 //subfunction to set regId
 String setRegId([String message = "\nVilket registreringsnummer har fordonet? "]) {
 
@@ -298,8 +301,9 @@ Person setOwner([String message = "\nVem är ägaren av fordonet?"]) {
 
   print(message);
 
-  //list all persons with the function from the repo
-  PersonRepository().printAllPersons();
+  //list all persons using a function from the person-menu
+  var personList = PersonRepository().getAll();
+  person_menu.printPersonList(personList);
   print("");
   
   //ask the user to select index and make sure we get an index within the range for the persons registrered
@@ -313,3 +317,15 @@ Person setOwner([String message = "\nVem är ägaren av fordonet?"]) {
   return  PersonRepository().getById(int.parse(inputOwnerIndex))!;
 
 }
+
+//print a list of vehicles
+void printVehicleList(List<Vehicle> vehicleList) {
+
+    print("\nIndex Id Regnr Fordonstyp Ägare");
+    print("-------------------------------");
+    for(var vehicle in vehicleList) {
+      print("${vehicleList.indexOf(vehicle)} ${vehicle.printDetails}");
+    }
+    print("-------------------------------");
+
+  }

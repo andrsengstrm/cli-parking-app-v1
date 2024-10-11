@@ -141,8 +141,8 @@ void getAllPersons() {
   
   } else {
     
-    //print all persons by using a function in the repo
-    PersonRepository().printAllPersons();
+    //print all persons by using a subfunction
+    printPersonList(personList);
 
   }
 
@@ -254,6 +254,9 @@ void deletePerson() {
 
 }
 
+
+/*---------------- subfunctions -----------------------*/
+
 //sunfunction to set or update the name
 String setName([String message = "\nVilket namn har personen? "]) {
 
@@ -283,3 +286,15 @@ String setPersonId([String message = "Vilket personnummer har personen? "]) {
   return personId;
 
 }
+
+//print list of persons
+void printPersonList(List<Person> personList) {
+
+    print("\nIndex Id Namn Personnummer");
+    print("-------------------------------");
+    for(var person in personList) {
+      print("${personList.indexOf(person)} ${person.printDetails}");
+    }
+    print("-------------------------------");
+
+  }

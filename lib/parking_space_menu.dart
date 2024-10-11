@@ -146,7 +146,7 @@ void getAllParkingSpaces() {
 
   } else {
 
-    ParkingSpaceRepository().printAllParkingSpaces();
+    printParkingSpaceList(parkingSpaceList);
 
   }
 
@@ -257,6 +257,9 @@ void deleteParkingSpace() {
 
 }
 
+
+/*---------------- subfunctions ------------------*/
+
 //subfunction to set or update the address
 String setAddress([String message = "\nVilken adress har parkeringsplatsen? "]) {
 
@@ -286,6 +289,18 @@ double setPricePerHour([String message = "Vilket pris per timme har parkeringspl
   return double.parse(input);
 
 }
+
+//print list of parkingspaces
+void printParkingSpaceList(List<ParkingSpace> parkingSpaceList) {
+
+    print("\nIndex Id Adress Pris/timme");
+    print("-------------------------------");
+    for(var parkingSpace in parkingSpaceList) {
+      print("${parkingSpaceList.indexOf(parkingSpace)} ${parkingSpace.printDetails}");
+    }
+    print("-------------------------------");
+
+  }
 
 
 
