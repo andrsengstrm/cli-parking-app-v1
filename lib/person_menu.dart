@@ -2,6 +2,7 @@ import "dart:convert";
 import "dart:io";
 import "package:cli/main_menu.dart" as main_menu;
 import "package:cli/models/person.dart";
+import "package:cli/parking_space_menu.dart";
 import "package:cli/repositories/person_repsoitory.dart";
 
 void showMenu() {
@@ -101,7 +102,7 @@ void getPerson() {
   try {
 
     //get the person by its id
-    var person = PersonRepository().getById(int.parse(index))!;
+    var person = PersonRepository().getByIndex(int.parse(index))!;
     print("\nIndex Id Namn Personnummer");
     print("-------------------------------");
     print("$index ${person.printDetails}");
@@ -110,13 +111,13 @@ void getPerson() {
   } on StateError { 
     
     //no one was found, lets try again
-    print("Det finns ingen person med index $index");
+    print("\nDet finns ingen person med index $index");
     getPerson();
 
   } on RangeError { 
     
     //outside the index, lets try again
-    print("Det finns ingen person med index $index");
+    print("\nDet finns ingen person med index $index");
     getPerson();
 
   } catch(err) { 
@@ -152,21 +153,28 @@ void getAllPersons() {
 
 void updatePerson() {
 
+  //get all persons, if empty we return to the menu
+  var personList = PersonRepository();
+  if(personList.getAll().isEmpty) {
+
+    stdout.write("\nDet finns inga personer registrerade");
+    showMenu();
+
+  }
+
   stdout.write("\nAnge index på den person du vill uppdatera (tryck enter för att avbryta): ");
   String index = stdin.readLineSync()!;
 
   if(index == "") {
 
-    stdout.write("\nDet finns inga personer registrerade");
     showMenu();
-    return;
 
   }
 
   try {
 
     //try to get the person from the personrepository
-    var person = PersonRepository().getById(int.parse(index))!;
+    var person = personList.getByIndex(int.parse(index))!;
 
     //ask to update the name
     String name = setName("\nVilket namn har personen? [Nuvarande värde: ${person.name}] ");
@@ -174,10 +182,10 @@ void updatePerson() {
     //ask to update the personId
     String personId = setPersonId("Vilket personnummer har personen? [Nuvarande värde: ${person.personId}] ");
 
-    var updatedPerson = Person(personId: personId, name: name);
+    var updatedPerson = Person(id: person.id, personId: personId, name: name);
 
     //update the person
-    person = PersonRepository().update(person, updatedPerson)!;
+    person = personList.update(person, updatedPerson)!;
     print("\nPersonen har uppdaterats");
 
   } on StateError { 
@@ -206,12 +214,11 @@ void updatePerson() {
 void deletePerson() {
 
   //get all persons, if empty we return to the menu
-  var personList = PersonRepository().getAll();
-  if(personList.isEmpty) {
+  var personList = PersonRepository();
+  if(personList.getAll().isEmpty) {
 
     stdout.write("\nDet finns inga personer registrerade");
     showMenu();
-    return;
 
   }
 
@@ -225,10 +232,10 @@ void deletePerson() {
   try {
 
     //try to get the person from the personrepository
-    Person person = PersonRepository().getById(int.parse(index))!;
+    Person person = personList.getByIndex(int.parse(index))!;
 
     //delete the person
-    PersonRepository().delete(person);
+    personList.delete(person);
     print("\nPersonen ${person.name} har tagits bort");
 
   } on StateError { 

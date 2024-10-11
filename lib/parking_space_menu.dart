@@ -108,7 +108,7 @@ void getParkingSpace() {
   try {
 
     //get the parkingspace by its id
-    var parkingSpace = ParkingSpaceRepository().getById(int.parse(index))!;
+    var parkingSpace = ParkingSpaceRepository().getByIndex(int.parse(index))!;
     print("\nIndex Id Adress Pris/timme");
     print("-------------------------------");
     print("$index ${parkingSpace.printDetails}");
@@ -156,12 +156,19 @@ void getAllParkingSpaces() {
 
 void updateParkingSpace() {
 
+  var parkingSpaceList = ParkingSpaceRepository();
+  if(parkingSpaceList.getAll().isEmpty) {
+
+    print("\nDet finns inga parkeringsplatser registrerade");
+    showMenu();
+
+  }
+
   stdout.write("\nAnge index på den parkeringsplats du vill uppdatera (tryck enter för att avbryta): ");
   String index = stdin.readLineSync()!;
 
   if(index == "") {
 
-    stdout.write("\nDet finns inga parkeringsplatser registrerade");
     showMenu();
     return;
 
@@ -170,7 +177,7 @@ void updateParkingSpace() {
   try {
 
     //try to get the person from the personrepository
-    var parkingSpace = ParkingSpaceRepository().getById(int.parse(index))!;
+    var parkingSpace = parkingSpaceList.getByIndex(int.parse(index))!;
 
     //ask to update the name
     String address = setAddress("\nVilken adress har parkeringsplatsen? [Nuvarande värde: ${parkingSpace.address}] ");
@@ -178,10 +185,10 @@ void updateParkingSpace() {
     //ask to update the personId
     double pricePerHour = setPricePerHour("Vilket pris per timme har parkeringsplatsen? [Nuvarande värde: ${parkingSpace.pricePerHour}] ");
 
-    var updatedParkingSpace = ParkingSpace(address: address, pricePerHour: pricePerHour);
+    var updatedParkingSpace = ParkingSpace(id: parkingSpace.id, address: address, pricePerHour: pricePerHour);
 
     //update the person
-    parkingSpace = ParkingSpaceRepository().update(parkingSpace, updatedParkingSpace)!;
+    parkingSpace = parkingSpaceList.update(parkingSpace, updatedParkingSpace)!;
     print("\nParkeringsplatsen har uppdaterats");
 
   } on StateError { 
@@ -209,8 +216,8 @@ void updateParkingSpace() {
 
 void deleteParkingSpace() {
 
-  var parkingSpaceList = ParkingSpaceRepository().getAll();
-  if(parkingSpaceList.isEmpty) {
+  var parkingSpaceList = ParkingSpaceRepository();
+  if(parkingSpaceList.getAll().isEmpty) {
 
     print("\nDet finns inga parkeringsplatser registrerade");
     showMenu();
@@ -227,7 +234,7 @@ void deleteParkingSpace() {
   try {
 
     //try to get the person from the personrepository
-    ParkingSpace parkingSpace = ParkingSpaceRepository().getById(index)!;
+    ParkingSpace parkingSpace = parkingSpaceList.getByIndex(index)!;
 
     //delete the person
     ParkingSpaceRepository().delete(parkingSpace);

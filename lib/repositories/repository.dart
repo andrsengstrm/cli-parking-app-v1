@@ -7,7 +7,7 @@ abstract class Repository<T> {
 
   List<T> getAll() => _items;
 
-  T? getById(int index) => _items[index];
+  T? getByIndex(int index) => _items[index];
 
   T? update(T item, T newItem) {
     var index = _items.indexWhere((x) => x == item);

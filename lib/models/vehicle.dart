@@ -1,16 +1,17 @@
 import 'package:cli/models/person.dart';
+import 'package:cli/repositories/person_repsoitory.dart';
 import 'package:uuid/uuid.dart';
 var uuid = Uuid();
 
 class Vehicle {
-  String id;
+  final String id;
   String regId;
   VehicleType vehicleType;
-  Person owner;
+  String ownerId;
 
-  Vehicle({String? id, required this.regId, required this.vehicleType, required this.owner }) : id = id ?? uuid.v1();
+  Vehicle({String? id, required this.regId, required this.vehicleType, required this.ownerId }) : id = id ?? uuid.v1();
 
-  String get printDetails => "$id $regId ${vehicleType.name.toUpperCase()} ${owner.name}";
+  String get printDetails => "$id $regId ${vehicleType.name.toUpperCase()} ${PersonRepository().getPersonById(ownerId).name}";
 
 }
 

@@ -13,8 +13,8 @@ void showMenu() {
   
   //show the submenu for 'Personer'
   print("\nMeny för parkingar, välj ett alternativ:"); 
-  print("1. Lägg till parkering");
-  print("2. Visa parkering");
+  print("1. Starta parkering");
+  print("2. Avsluta parkering");
   print("3. Visa alla parkeringar");
   print("4. Uppdatera parkering");
   print("5. Ta bort parkering");
@@ -35,12 +35,12 @@ void readMenuSelection() {
   if(optionSelected == "1") { 
     
     //add parking
-    addParking();
+    startParking();
   
   } else if(optionSelected == "2") { 
     
-    //list parking
-    getParking();
+    //end parking
+    endParking();
   
   } else if(optionSelected == "3") { 
     
@@ -49,12 +49,12 @@ void readMenuSelection() {
   
   } else if(optionSelected == "4") { 
     
-    //update parking
+    //update parkings
     updateParking();
   
   } else if(optionSelected == "5") { 
-
-    //delete parking
+    
+    //update parkings
     deleteParking();
   
   } else if(optionSelected == "6") { 
@@ -65,7 +65,7 @@ void readMenuSelection() {
   } else { 
     
     //unsupported selection
-    stdout.write("\nOgiligt val! Välj ett alternativ (1-5): ");
+    stdout.write("\nOgiligt val! Välj ett alternativ (1-6): ");
 
     readMenuSelection();
   
@@ -73,24 +73,21 @@ void readMenuSelection() {
   
 }
 
-void addParking() {
+void startParking() {
 
   //set the vehicle
-  Vehicle vehicle = setVehicle();
+  String vehicleId = setVehicleId();
 
   //set the parkingspace
-  ParkingSpace parkingSpace = setParkingSpace();
+  String parkingSpaceId = setParkingSpaceId();
 
-  //set the starttime
-  double startTime = setTime(message: "\nVilken tid ska parkeringen börja?");
-
-  //set the endtime
-  double endTime = setTime(message: "\nVilken tid ska parkeringen sluta?");
+  //set the time to now
+  DateTime startTime = DateTime.now();
 
   try {
 
     //set the parking-object
-    Parking newParking = Parking(vehicle: vehicle, parkingSpace: parkingSpace, startTime: startTime, endTime: endTime);
+    Parking newParking = Parking(vehicleId: vehicleId, parkingSpaceId: parkingSpaceId, startTime: startTime);
     ParkingRepository().add(newParking);
 
     print("\nParkeringen har startats.");
@@ -106,23 +103,197 @@ void addParking() {
 
 }
 
-void getParking() {
+void endParking() {
+
+  //get all active parkings
+  var parkingList = ParkingRepository();
+
+  if(parkingList.getAll().where((p) => p.endTime == null).isEmpty) {
+
+    print("\nDet finns inga aktiva parkeringar");
+    showMenu();
+
+  }
+
+  //print a list of parkings
+  print("\nVlken parkering du vill avluta?");
+  printParkingList(parkingList.getAll(), true);
+
+  stdout.write("\nVälj parkeringens index: ");
+  var index = stdin.readLineSync()!;
+
+  try {
+
+    //get the parking by its id
+    var parking = parkingList.getByIndex(int.parse(index))!;
+    var newParking = parking;
+    newParking.endTime = DateTime.now();
+    ParkingRepository().update(parking, newParking);
+
+    print("\nParkering har avslutats.");
+
+  } on StateError { 
+    
+    //no one was found, lets try again
+    print("\nDet finns ingen parkering med index $index");
+    endParking();
+
+  } on RangeError { 
+    
+    //outside the index, lets try again
+    print("\nDet finns ingen person med index $index");
+    endParking();
+
+  } catch(err) { 
+    
+    //some other error
+    print("\nEtt fel har uppstått: $err"); 
+
+  }
+
+  showMenu();
+
 }
 
 void getAllParkings() {
+
+  //get all parkings
+  var parkingList = ParkingRepository().getAll();
+
+  if(parkingList.isEmpty) {
+
+    print("\nDet finns inga parkeringar registrerade");
+
+  } else {
+
+    printParkingList(parkingList);
+
+  }
+
+  showMenu();
+
 }
 
 void updateParking() {
+
+  //get all parkings, if empty we return to the menu
+  var parkingList = ParkingRepository();
+  if(parkingList.getAll().isEmpty) {
+
+    print("\nDet finns inga parkeringar registrerade");
+    showMenu();
+
+  }
+
+  stdout.write("\nAnge index på den parkering du vill uppdatera (tryck enter för att avbryta): ");
+  String index = stdin.readLineSync()!;
+
+  if(index == "") { //no value provided
+    showMenu();
+  }
+
+  try {
+    
+    //get the old parking by its id
+    var parking = parkingList.getByIndex(int.parse(index))!;
+
+    //update vehicleIs
+    String vehicleId = setVehicleId("\nVilket fordon är parkerat? [Nuvarande fordon: ${VehicleRepository().getVehicleById(parking.vehicleId).regId}]");
+
+    //update parkingspace
+    String parkingSpaceId = setParkingSpaceId("\nVilken parkeingsplats? [Nuvarande parkeringsplats: ${ParkingSpaceRepository().getParkingSpaceById(parking.parkingSpaceId).address}]");
+
+    //set the starttime
+    DateTime startTime = setTime("Uppdatera tidpunkt för starttid");
+
+    //set the endtime
+    DateTime endTime = setTime("Uppdatera tidpunkt för sluttid");
+
+    //set the new parkingobject
+    var newParking = Parking(vehicleId: vehicleId, parkingSpaceId: parkingSpaceId, startTime: startTime, endTime: endTime);
+
+    parkingList.update(parking, newParking);
+
+    print("\nParkeringen har uppdaterats");
+
+  } on StateError { 
+    
+    //no one was found, lets try again
+    print("\nDet finns ingen parkering med index $index");
+    endParking();
+
+  } on RangeError { 
+    
+    //outside the index, lets try again
+    print("\nDet finns ingen person med index $index");
+    endParking();
+
+  } catch(err) { 
+    
+    //some other error
+    print("\nEtt fel har uppstått: $err"); 
+
+  }
+
+  showMenu();
+
 }
 
 void deleteParking() {
+
+  //get all parkings, if empty we return to the menu
+  var parkingList = ParkingRepository();
+  if(parkingList.getAll().isEmpty) {
+
+    print("\nDet finns inga parkeringar registrerade");
+    showMenu();
+
+  }
+
+  stdout.write("\nAnge index på den parkering du vill ta bort (tryck enter för att avbryta): ");
+  String index = stdin.readLineSync()!;
+
+  if(index == "") { //no value provided
+    showMenu();
+  }
+
+  try {
+
+    //try to get the parking from the personrepository
+    Parking parking = parkingList.getByIndex(int.parse(index))!;
+
+    //delete the parking
+    parkingList.delete(parking);
+    print("\nParkeringen har tagits bort");
+
+  } on StateError { 
+    
+    //no one was found, lets try again
+    print("\nDet finns ingen parkering med index $index");
+    deleteParking();
+
+  } on RangeError { 
+    
+    //outside the index, lets try again
+    print("\nDet finns ingen parkering med index $index");
+    deleteParking();
+
+  } catch(err) { 
+    
+    //some other error, exit function
+    print("\nEtt fel har uppstått: $err");
+
+  }
+
+  showMenu();
+
 }
 
 
 /*---------------- subfunctions ----------------*/
 
 //set the vehicle
-Vehicle setVehicle([String message = "\nVilket fordon vill du parkera?"]) {
+String setVehicleId([String message = "\nVilket fordon vill du parkera?"]) {
 
   print(message);
 
@@ -138,12 +309,12 @@ Vehicle setVehicle([String message = "\nVilket fordon vill du parkera?"]) {
   } while(inputVehicleIndex.isEmpty || int.tryParse(inputVehicleIndex) == null || int.tryParse(inputVehicleIndex)! >= vehicleList.length);
 
   //select the item by index and return it
-  return VehicleRepository().getById(int.parse(inputVehicleIndex))!;
+  return VehicleRepository().getByIndex(int.parse(inputVehicleIndex))!.id;
 
 }
 
 //set the parkingspace
-ParkingSpace setParkingSpace([String message = "\nVilken perkeringsplats vill du använda?"]) {
+String setParkingSpaceId([String message = "\nVilken perkeringsplats vill du använda?"]) {
 
   print(message);
 
@@ -159,25 +330,43 @@ ParkingSpace setParkingSpace([String message = "\nVilken perkeringsplats vill du
   } while(inputParkingSpaceIndex.isEmpty || int.tryParse(inputParkingSpaceIndex) == null || int.tryParse(inputParkingSpaceIndex)! >= parkingSpaceList.length);
 
   //select the item by index and return it
-  return ParkingSpaceRepository().getById(int.parse(inputParkingSpaceIndex))!;
+  return ParkingSpaceRepository().getByIndex(int.parse(inputParkingSpaceIndex))!.id;
 
 }
 
-double setTime({required String message}) {
+//set a manual time
+DateTime setTime([String message = "Välj tidpunkt"]) {
 
   print(message);
 
-  //set the time
-  String inputTime;
+  String input;
   do {
-    stdout.write("Fyll i klockslag (HH.MM): ");
-    inputTime = stdin.readLineSync()!;
+    stdout.write("Fyll i datum och tid [YYYY-MM-DD HH:MM]: ");
+    input = stdin.readLineSync()!;
+  } while(input.isEmpty || DateTime.tryParse(input) == null);
 
-  } while(double.tryParse(inputTime) == null);
-
-  return double.parse(inputTime);
+  return DateTime.parse(input);
 
 }
+
+//print list of parkings
+void printParkingList(List<Parking> parkingList, [bool showOnlyActive = false]) {
+
+    print("\nIndex Id Registraringsnr Adress Starttid Sluttid Kostnad");
+    print("--------------------------------------------------------------");
+    for(var parking in parkingList) {
+      if(showOnlyActive) {
+        if(parking.endTime == null) {
+          print("${parkingList.indexOf(parking)} ${parking.printDetails}");
+        }
+      } else {
+        print("${parkingList.indexOf(parking)} ${parking.printDetails}");
+      }
+    }
+    print("--------------------------------------------------------------");
+
+  }
+
 
 
 

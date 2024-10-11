@@ -80,12 +80,12 @@ void addVehicle() {
   VehicleType vehicleType = setVehicleType();
 
   //print all persons so the user can select the owner the person-index
-  Person ownerPerson = setOwner();
+  String ownerId = setOwnerId();
 
   try {
 
     //construct a Person and add Person with function from the repo
-    var newVehicle = Vehicle(regId: regId, vehicleType: vehicleType, owner: ownerPerson);
+    var newVehicle = Vehicle(regId: regId, vehicleType: vehicleType, ownerId: ownerId);
     VehicleRepository().add(newVehicle);
 
     print("\nFordonet med regstreringsnummer ${newVehicle.regId} har lagts till.");
@@ -112,7 +112,7 @@ void getVehicle() {
 
   try {
     //get the vehicle by its id
-    var vehicle = VehicleRepository().getById(int.parse(index))!;
+    var vehicle = VehicleRepository().getByIndex(int.parse(index))!;
     print("\nIndex Id Regnr Fordonstyp Ägare");
     print("-------------------------------");
     print("$index ${vehicle.printDetails}");
@@ -161,32 +161,44 @@ void getAllVehicles() {
 
 void updateVehicle() {
 
+  //get all vehicle, if empty we return to the menu
+  var vehicleList = VehicleRepository();
+
+  if(vehicleList.getAll().isEmpty) {
+
+    print("\nDet finns inga fordon registrerade");
+    showMenu();
+  }
+
   stdout.write("\nAnge index på det fordon du vill uppdatera (tryck enter för att avbryta): ");
   String index = stdin.readLineSync()!;
 
   if(index == "") {
+
+    print("\nDet finns inga fordon registrerade");
     showMenu();
-    return;
+
   }
-
-  //try to get the vehicle from the personrepository
-  var vehicle = VehicleRepository().getById(int.parse(index))!;
-
-  //ask for the regId. If no regId is provided, we repeat the process
-  String regId = setRegId("\nVilket registreringsnummer har fordonet? [Nuvarande värde: ${vehicle.regId}] ");
-  
-  //ask for vehicletype, list the vehicletypes-enum with an index so the user can select
-  VehicleType vehicleType = setVehicleType("\nVilken typ av fordon är det? [Nuvarande fordonstyp: ${vehicle.vehicleType.name.toUpperCase()}] ");
-
-  //print all persons so the user can select the owner the person-index
-  Person ownerPerson = setOwner("\nVem är ägaren av fordonet? [Nuvarande ägare: ${vehicle.owner.name}] ");
 
   try {
 
-    var updatedVehicle = Vehicle(regId: regId, vehicleType: vehicleType, owner: ownerPerson );
+    //try to get the vehicle from the personrepository
+    var vehicle = vehicleList.getByIndex(int.parse(index))!;
+
+    //ask for the regId. If no regId is provided, we repeat the process
+    String regId = setRegId("\nVilket registreringsnummer har fordonet? [Nuvarande värde: ${vehicle.regId}] ");
+    
+    //ask for vehicletype, list the vehicletypes-enum with an index so the user can select
+    VehicleType vehicleType = setVehicleType("\nVilken typ av fordon är det? [Nuvarande fordonstyp: ${vehicle.vehicleType.name.toUpperCase()}] ");
+
+    //print all persons so the user can select the owner the person-index
+    String ownerId = setOwnerId("\nVem är ägaren av fordonet? [Nuvarande ägare: ${PersonRepository().getPersonById(vehicle.ownerId).name}] ");
+
+    //object for updated vehicle
+    var updatedVehicle = Vehicle(id: vehicle.id, regId: regId, vehicleType: vehicleType, ownerId: ownerId );
 
     //update the person
-    vehicle = VehicleRepository().update(vehicle, updatedVehicle)!;
+    vehicle = vehicleList.update(vehicle, updatedVehicle)!;
     print("\nFordonet har uppdaterats");
 
   } on StateError { //no one was found, lets try again
@@ -211,25 +223,27 @@ void updateVehicle() {
 
 void deleteVehicle() {
 
-  //get all persons, if empty we return to the menu
+  //get all vehicle, if empty we return to the menu
   var vehicleList = VehicleRepository();
 
   if(vehicleList.getAll().isEmpty) {
+
+    print("\nDet finns inga fordon registrerade");
     showMenu();
-    return;
   }
 
   stdout.write("\nAnge index på det fordon som du vill ta bort (tryck enter för att avbryta): ");
   String index = stdin.readLineSync()!;
 
   if(index == "") { //no value provided
+
     showMenu();
-    return;
+
   }
 
   try {
     //try to get the person from the personrepository
-    Vehicle vehicle = vehicleList.getById(int.parse(index))!;
+    Vehicle vehicle = vehicleList.getByIndex(int.parse(index))!;
 
     //delete the person
     vehicleList.delete(vehicle);
@@ -297,7 +311,7 @@ VehicleType setVehicleType([String message = "\nVilken typ av fordon är det?"])
 }
 
 //subfunction to set the ownerperson
-Person setOwner([String message = "\nVem är ägaren av fordonet?"]) {
+String setOwnerId([String message = "\nVem är ägaren av fordonet?"]) {
 
   print(message);
 
@@ -314,7 +328,7 @@ Person setOwner([String message = "\nVem är ägaren av fordonet?"]) {
   } while(inputOwnerIndex.isEmpty || int.tryParse(inputOwnerIndex) == null || int.tryParse(inputOwnerIndex)! >= PersonRepository().getAll().length);
   
   //select the person by index and return it
-  return  PersonRepository().getById(int.parse(inputOwnerIndex))!;
+  return  PersonRepository().getByIndex(int.parse(inputOwnerIndex))!.id;
 
 }
 

@@ -9,4 +9,8 @@ class VehicleRepository extends Repository<Vehicle> {
 
   factory VehicleRepository() => _instance;
 
+  Vehicle getVehicleById(id) { 
+    return VehicleRepository().getAll().where((v) => v.id == id).first;
+  }
+
 }
