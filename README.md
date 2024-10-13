@@ -1,4 +1,4 @@
-# Parkeringsapp v.1
+# Parkeringsapp v 1.0.0
 Det här är min cli-baserade dart-app för att hantera parkeringar.
 
 ## Beskrivning
