@@ -80,12 +80,12 @@ void addVehicle() {
   VehicleType vehicleType = setVehicleType();
 
   //print all persons so the user can select the owner the person-index
-  String ownerId = setOwnerId();
+  Person owner = setOwner();
 
   try {
 
     //construct a Person and add Person with function from the repo
-    var newVehicle = Vehicle(regId: regId, vehicleType: vehicleType, ownerId: ownerId);
+    var newVehicle = Vehicle(regId: regId, vehicleType: vehicleType, owner: owner);
     VehicleRepository().add(newVehicle);
 
     print("\nFordonet med regstreringsnummer ${newVehicle.regId} har lagts till.");
@@ -192,10 +192,10 @@ void updateVehicle() {
     VehicleType vehicleType = setVehicleType("\nVilken typ av fordon är det? [Nuvarande fordonstyp: ${vehicle.vehicleType.name.toUpperCase()}] ");
 
     //print all persons so the user can select the owner the person-index
-    String ownerId = setOwnerId("\nVem är ägaren av fordonet? [Nuvarande ägare: ${PersonRepository().getPersonById(vehicle.ownerId).name}] ");
+    Person owner = setOwner("\nVem är ägaren av fordonet? [Nuvarande ägare: ${vehicle.owner.name}] ");
 
     //object for updated vehicle
-    var updatedVehicle = Vehicle(id: vehicle.id, regId: regId, vehicleType: vehicleType, ownerId: ownerId );
+    var updatedVehicle = Vehicle(id: vehicle.id, regId: regId, vehicleType: vehicleType, owner: owner );
 
     //update the person
     vehicle = vehicleList.update(vehicle, updatedVehicle)!;
@@ -311,7 +311,7 @@ VehicleType setVehicleType([String message = "\nVilken typ av fordon är det?"])
 }
 
 //subfunction to set the ownerperson
-String setOwnerId([String message = "\nVem är ägaren av fordonet?"]) {
+Person setOwner([String message = "\nVem är ägaren av fordonet?"]) {
 
   print(message);
 
@@ -328,7 +328,7 @@ String setOwnerId([String message = "\nVem är ägaren av fordonet?"]) {
   } while(inputOwnerIndex.isEmpty || int.tryParse(inputOwnerIndex) == null || int.tryParse(inputOwnerIndex)! >= PersonRepository().getAll().length);
   
   //select the person by index and return it
-  return  PersonRepository().getByIndex(int.parse(inputOwnerIndex))!.id;
+  return  PersonRepository().getByIndex(int.parse(inputOwnerIndex))!;
 
 }
 

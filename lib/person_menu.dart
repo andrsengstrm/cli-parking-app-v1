@@ -101,7 +101,7 @@ void getPerson() {
 
   try {
 
-    //get the person by its id
+    //get the person by its index
     var person = PersonRepository().getByIndex(int.parse(index))!;
     print("\nIndex Id Namn Personnummer");
     print("-------------------------------");

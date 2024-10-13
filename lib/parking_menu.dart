@@ -9,23 +9,26 @@ import "package:cli/parking_space_menu.dart" as parking_space_menu;
 import "package:cli/models/parking_space.dart";
 import "package:cli/repositories/parking_space_repository.dart";
 
+//show the menu for parkings
 void showMenu() {
   
   //show the submenu for 'Personer'
   print("\nMeny för parkingar, välj ett alternativ:"); 
   print("1. Starta parkering");
   print("2. Avsluta parkering");
-  print("3. Visa alla parkeringar");
-  print("4. Uppdatera parkering");
-  print("5. Ta bort parkering");
-  print("6. Gå tillbaka till huvudmenyn");
-  stdout.write("\nVälj ett alternativ (1-6): ");
+  print("3. Visa parkering");
+  print("4. Visa alla parkeringar");
+  print("5. Uppdatera parkering");
+  print("6. Ta bort parkering");
+  print("7. Gå tillbaka till huvudmenyn");
+  stdout.write("\nVälj ett alternativ (1-7): ");
 
   //read the selected option
   readMenuSelection();
 
 }
 
+//read the menu selection and goto the function selected
 void readMenuSelection() {
   
   //wait for input and read the selection option
@@ -45,19 +48,24 @@ void readMenuSelection() {
   } else if(optionSelected == "3") { 
     
     //list all parkings
-    getAllParkings();
+    getParking();
   
   } else if(optionSelected == "4") { 
     
-    //update parkings
-    updateParking();
+    //list all parkings
+    getAllParkings();
   
   } else if(optionSelected == "5") { 
     
     //update parkings
-    deleteParking();
+    updateParking();
   
   } else if(optionSelected == "6") { 
+    
+    //update parkings
+    deleteParking();
+  
+  } else if(optionSelected == "7") { 
 
     //go back to main menu
     main_menu.showMenu();
@@ -65,7 +73,7 @@ void readMenuSelection() {
   } else { 
     
     //unsupported selection
-    stdout.write("\nOgiligt val! Välj ett alternativ (1-6): ");
+    stdout.write("\nOgiligt val! Välj ett alternativ (1-7): ");
 
     readMenuSelection();
   
@@ -73,13 +81,14 @@ void readMenuSelection() {
   
 }
 
+//function to start a new parking
 void startParking() {
 
   //set the vehicle
-  String vehicleId = setVehicleId();
+  Vehicle vehicle = setVehicle();
 
   //set the parkingspace
-  String parkingSpaceId = setParkingSpaceId();
+  ParkingSpace parkingSpace = setParkingSpace();
 
   //set the time to now
   DateTime startTime = DateTime.now();
@@ -87,7 +96,7 @@ void startParking() {
   try {
 
     //set the parking-object
-    Parking newParking = Parking(vehicleId: vehicleId, parkingSpaceId: parkingSpaceId, startTime: startTime);
+    Parking newParking = Parking(vehicle: vehicle, parkingSpace: parkingSpace, startTime: startTime);
     ParkingRepository().add(newParking);
 
     print("\nParkeringen har startats.");
@@ -103,6 +112,7 @@ void startParking() {
 
 }
 
+//function to end a parking
 void endParking() {
 
   //get all active parkings
@@ -155,6 +165,50 @@ void endParking() {
 
 }
 
+//function to get a parking
+void getParking() {
+
+  stdout.write("\nAnge index på den parkering du vill visa (tryck enter för att avbryta): ");
+  String index = stdin.readLineSync()!;
+
+  if(index == "") {
+    showMenu();
+    return;
+  }
+
+  try {
+
+    //get the parking by its index
+    var parking = ParkingRepository().getByIndex(int.parse(index))!;
+    print("\nIndex Id Registraringsnr Adress Starttid Sluttid Kostnad");
+    print("-------------------------------");
+    print("$index ${parking.printDetails}");
+    print("-------------------------------");
+
+  } on StateError { 
+    
+    //no one was found, lets try again
+    print("\nDet finns ingen parkering med index $index");
+    getParking();
+
+  } on RangeError { 
+    
+    //outside the index, lets try again
+    print("\nDet finns ingen parkering med index $index");
+    getParking();
+
+  } catch(err) { 
+    
+    //some other error
+    print("\nEtt fel har uppstått: $err"); 
+
+  }
+
+  showMenu();
+
+}
+
+//function to list all parkings
 void getAllParkings() {
 
   //get all parkings
@@ -174,6 +228,7 @@ void getAllParkings() {
 
 }
 
+//function to update a parking
 void updateParking() {
 
   //get all parkings, if empty we return to the menu
@@ -198,10 +253,10 @@ void updateParking() {
     var parking = parkingList.getByIndex(int.parse(index))!;
 
     //update vehicleIs
-    String vehicleId = setVehicleId("\nVilket fordon är parkerat? [Nuvarande fordon: ${VehicleRepository().getVehicleById(parking.vehicleId).regId}]");
+    Vehicle vehicle = setVehicle("\nVilket fordon är parkerat? [Nuvarande fordon: ${parking.vehicle.regId}]");
 
     //update parkingspace
-    String parkingSpaceId = setParkingSpaceId("\nVilken parkeingsplats? [Nuvarande parkeringsplats: ${ParkingSpaceRepository().getParkingSpaceById(parking.parkingSpaceId).address}]");
+    ParkingSpace parkingSpace = setParkingSpace("\nVilken parkeingsplats? [Nuvarande parkeringsplats: ${parking.parkingSpace.address}]");
 
     //set the starttime
     DateTime startTime = setTime("Uppdatera tidpunkt för starttid");
@@ -210,7 +265,7 @@ void updateParking() {
     DateTime endTime = setTime("Uppdatera tidpunkt för sluttid");
 
     //set the new parkingobject
-    var newParking = Parking(vehicleId: vehicleId, parkingSpaceId: parkingSpaceId, startTime: startTime, endTime: endTime);
+    var newParking = Parking(vehicle: vehicle, parkingSpace: parkingSpace, startTime: startTime, endTime: endTime);
 
     parkingList.update(parking, newParking);
 
@@ -239,6 +294,7 @@ void updateParking() {
 
 }
 
+//function to delete a parking
 void deleteParking() {
 
   //get all parkings, if empty we return to the menu
@@ -290,10 +346,11 @@ void deleteParking() {
 }
 
 
+
 /*---------------- subfunctions ----------------*/
 
 //set the vehicle
-String setVehicleId([String message = "\nVilket fordon vill du parkera?"]) {
+Vehicle setVehicle([String message = "\nVilket fordon vill du parkera?"]) {
 
   print(message);
 
@@ -309,12 +366,12 @@ String setVehicleId([String message = "\nVilket fordon vill du parkera?"]) {
   } while(inputVehicleIndex.isEmpty || int.tryParse(inputVehicleIndex) == null || int.tryParse(inputVehicleIndex)! >= vehicleList.length);
 
   //select the item by index and return it
-  return VehicleRepository().getByIndex(int.parse(inputVehicleIndex))!.id;
+  return VehicleRepository().getByIndex(int.parse(inputVehicleIndex))!;
 
 }
 
 //set the parkingspace
-String setParkingSpaceId([String message = "\nVilken perkeringsplats vill du använda?"]) {
+ParkingSpace setParkingSpace([String message = "\nVilken perkeringsplats vill du använda?"]) {
 
   print(message);
 
@@ -330,7 +387,7 @@ String setParkingSpaceId([String message = "\nVilken perkeringsplats vill du anv
   } while(inputParkingSpaceIndex.isEmpty || int.tryParse(inputParkingSpaceIndex) == null || int.tryParse(inputParkingSpaceIndex)! >= parkingSpaceList.length);
 
   //select the item by index and return it
-  return ParkingSpaceRepository().getByIndex(int.parse(inputParkingSpaceIndex))!.id;
+  return ParkingSpaceRepository().getByIndex(int.parse(inputParkingSpaceIndex))!;
 
 }
 
@@ -352,7 +409,7 @@ DateTime setTime([String message = "Välj tidpunkt"]) {
 //print list of parkings
 void printParkingList(List<Parking> parkingList, [bool showOnlyActive = false]) {
 
-    print("\nIndex Id Registraringsnr Adress Starttid Sluttid Kostnad");
+    print("\nIndex Id Registreringsnr Adress Starttid Sluttid Kostnad");
     print("--------------------------------------------------------------");
     for(var parking in parkingList) {
       if(showOnlyActive) {

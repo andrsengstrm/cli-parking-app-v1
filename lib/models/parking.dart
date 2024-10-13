@@ -1,20 +1,39 @@
 import 'package:cli/models/parking_space.dart';
+import 'package:cli/models/person.dart';
 import 'package:cli/models/vehicle.dart';
-import 'package:cli/repositories/parking_space_repository.dart';
-import 'package:cli/repositories/vehicle_repository.dart';
 import 'package:uuid/uuid.dart';
 var uuid = Uuid();
 
+//class for parking
 class Parking {
   final String id;
-  final String vehicleId;
-  final String parkingSpaceId;
+  final Vehicle vehicle;
+  final ParkingSpace parkingSpace;
   final DateTime startTime;
   DateTime? endTime;
 
-  Parking({String? id, required this.vehicleId, required this.parkingSpaceId, required this.startTime, this.endTime}) : id = id ?? uuid.v1();
+  Parking({String? id, required this.vehicle, Person? owner, required this.parkingSpace, required this.startTime, this.endTime}) 
+    : id = id ?? uuid.v1();
 
-  String get printDetails => "$id ${VehicleRepository().getVehicleById(vehicleId).regId} ${ParkingSpaceRepository().getParkingSpaceById(parkingSpaceId).address} $startTime $endTime ${getCostForParking()}";
+  //get some details for the parking and return a predefined string, including calculated cost
+  String get printDetails => "$id ${vehicle.regId} ${parkingSpace.address} $startTime $endTime ${getCostForParking()}";
+
+  //deserialize from json
+  Parking.fromJson(Map<String, dynamic> json)
+    : id = json["id"] as String,
+      vehicle = json["vehicle"] as Vehicle,
+      parkingSpace = json["parkingSpace"] as ParkingSpace,
+      startTime = json["startTime"] as DateTime,
+      endTime = json["endTime"] as DateTime;
+
+  //serialize to json
+  Map<String, dynamic> toJson() => {
+    "id": id,
+    "vehicle": vehicle.toJson(),
+    "parkingSpace": parkingSpace.toJson(),
+    "startTime": startTime,
+    "endTime": endTime
+  };
 
   //calculate the price for the parking
   String getCostForParking() {
@@ -28,10 +47,12 @@ class Parking {
 
     //convert to hours and calculate the cost
     double totalHours = total / 3600000;
-    cost =  totalHours * ParkingSpaceRepository().getParkingSpaceById(parkingSpaceId).pricePerHour;
+    cost =  totalHours * parkingSpace.pricePerHour;
 
     return cost.toStringAsFixed(2);
 
   }
+
+
 
 }
